@@ -1,7 +1,7 @@
 # COMP 4513 Assignment 1
 
 ## Overview
-A REST API built with Node.js and Express for querying Spotify song, artist, genre, and playlist data. All responses are returned in JSON format.
+A REST API built with Node.js and Express for querying Spotify song, artist, genre, and playlist data from a SQLite database. All responses are returned in JSON format.
 
 ## Built With
 - **Node.js** - Runtime environment
@@ -9,7 +9,7 @@ A REST API built with Node.js and Express for querying Spotify song, artist, gen
 - **SQLite3** - Database
 
 ## Hosting
-Deployed on Render: 
+Deployed on Render: https://comp4513-assign1-tpay.onrender.com 
 
 ## API Endpoints
 
