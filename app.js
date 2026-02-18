@@ -3,7 +3,7 @@ const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
-const PORT = 3000;
+const port = process.env.PORT || 4000;
 
 const DB_PATH = path.join(__dirname, "data/songs-2026.db");
 const db = new sqlite3.Database(DB_PATH, (err) => {
