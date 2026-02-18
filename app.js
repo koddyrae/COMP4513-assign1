@@ -3,7 +3,7 @@ const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 10000;
 
 const DB_PATH = path.join(__dirname, "data/songs-2026.db");
 const db = new sqlite3.Database(DB_PATH, (err) => {
@@ -466,6 +466,6 @@ app.get("/api/mood/studying/:ref", (req, resp) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on ${port}`);
 });
