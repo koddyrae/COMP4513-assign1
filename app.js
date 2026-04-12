@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 10000;
@@ -15,6 +16,7 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
 });
 
 app.use(express.json());
+app.use(cors());
 
 // ---- GENRE ROUTES ----
 app.get("/api/genres", (req, resp) => {
