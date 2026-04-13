@@ -19,16 +19,21 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
 db.run(`CREATE TABLE IF NOT EXISTS playlist_names (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL
-)`);
-
-db.run("DELETE FROM playlist_names");
-db.get("SELECT COUNT(*) as count FROM playlist_names", [], (err, row) => {
-  if (row && row.count === 0) {
-    db.run("INSERT INTO playlist_names (id, name) VALUES (1, 'Playlist 1')");
-    db.run("INSERT INTO playlist_names (id, name) VALUES (2, 'Playlist 2')");
-    db.run("INSERT INTO playlist_names (id, name) VALUES (3, 'Playlist 3')");
-    db.run("INSERT INTO playlist_names (id, name) VALUES (4, 'Playlist 4')");
+)`, (err) => {
+  if (err) {
+    console.error("Error creating table:", err.message);
+    return;
   }
+  // Table exists now, safe to delete and insert
+  db.run("DELETE FROM playlist_names");
+  db.get("SELECT COUNT(*) as count FROM playlist_names", [], (err, row) => {
+    if (row && row.count === 0) {
+      db.run("INSERT INTO playlist_names (id, name) VALUES (1, 'Playlist 1')");
+      db.run("INSERT INTO playlist_names (id, name) VALUES (2, 'Playlist 2')");
+      db.run("INSERT INTO playlist_names (id, name) VALUES (3, 'Playlist 3')");
+      db.run("INSERT INTO playlist_names (id, name) VALUES (4, 'Playlist 4')");
+    }
+  });
 });
 
 app.use(express.json());
