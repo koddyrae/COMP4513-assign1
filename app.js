@@ -15,6 +15,12 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
   }
 });
 
+// New DB table for playlist creation
+db.run(`CREATE TABLE IF NOT EXISTS playlist_names (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL
+)`);
+
 app.use(express.json());
 app.use(cors());
 
@@ -262,36 +268,74 @@ app.get("/api/songs/:ref", (req, resp) => {
 });
 
 // ---- PLAYLIST ROUTES ----
-app.get("/api/playlists", (req, resp) => {
-  let query = `SELECT * FROM playlists`;
 
-  db.all(query, [], (err, rows) => {
-    if (err) {
-      return resp.json({ error: err.message });
-    }
-    if (rows.length === 0) {
-      return resp.json({ error: "No playlists found" });
-    }
+// Get all playlist names - MUST be before /:ref
+app.get("/api/playlists/names", (req, resp) => {
+  db.all("SELECT * FROM playlist_names", [], (err, rows) => {
+    if (err) return resp.json({ error: err.message });
     resp.json(rows);
   });
 });
 
+// Create a new playlist - MUST be before /:ref
+app.post("/api/playlists/create", (req, resp) => {
+  const { name } = req.body;
+  db.run("INSERT INTO playlist_names (name) VALUES (?)", [name], function(err) {
+    if (err) return resp.json({ error: err.message });
+    resp.json({ id: this.lastID, name });
+  });
+});
+
+// Get all playlist songs
+app.get("/api/playlists", (req, resp) => {
+  db.all("SELECT * FROM playlists", [], (err, rows) => {
+    if (err) return resp.json({ error: err.message });
+    resp.json(rows);
+  });
+});
+
+// Get songs for a specific playlist
 app.get("/api/playlists/:ref", (req, resp) => {
-  let query = `SELECT p.playlist_id, s.song_id, s.title, a.artist_name, g.genre_name, s.year
+  let query = `SELECT p.playlist_id, s.song_id, s.title, a.artist_name, a.artist_id, g.genre_name, s.year
                  FROM playlists p
                  JOIN songs s ON p.song_id = s.song_id
                  JOIN artists a ON s.artist_id = a.artist_id
                  JOIN genres g ON s.genre_id = g.genre_id
                  WHERE p.playlist_id = ?`;
-
   db.all(query, [req.params.ref], (err, rows) => {
-    if (err) {
-      return resp.json({ error: err.message });
-    }
-    if (rows.length === 0) {
-      return resp.json({ error: "Playlist not found" });
-    }
+    if (err) return resp.json({ error: err.message });
+    if (rows.length === 0) return resp.json({ error: "Playlist not found" });
     resp.json(rows);
+  });
+});
+
+// Add song to playlist
+app.post("/api/playlists/:id/songs", (req, resp) => {
+  const { song_id } = req.body;
+  db.run("INSERT INTO playlists (playlist_id, song_id) VALUES (?, ?)", 
+    [req.params.id, song_id], function(err) {
+    if (err) return resp.json({ error: err.message });
+    resp.json({ id: this.lastID });
+  });
+});
+
+// Remove song from playlist
+app.delete("/api/playlists/:id/songs/:songId", (req, resp) => {
+  db.run("DELETE FROM playlists WHERE playlist_id = ? AND song_id = ?",
+    [req.params.id, req.params.songId], function(err) {
+    if (err) return resp.json({ error: err.message });
+    resp.json({ deleted: this.changes });
+  });
+});
+
+// Delete a playlist
+app.delete("/api/playlists/:id", (req, resp) => {
+  db.run("DELETE FROM playlist_names WHERE id = ?", [req.params.id], function(err) {
+    if (err) return resp.json({ error: err.message });
+    db.run("DELETE FROM playlists WHERE playlist_id = ?", [req.params.id], function(err) {
+      if (err) return resp.json({ error: err.message });
+      resp.json({ deleted: this.changes });
+    });
   });
 });
 
