@@ -21,6 +21,16 @@ db.run(`CREATE TABLE IF NOT EXISTS playlist_names (
   name TEXT NOT NULL
 )`);
 
+// pre-populate with existing playlists if table is empty
+db.get("SELECT COUNT(*) as count FROM playlist_names", [], (err, row) => {
+  if (row && row.count === 0) {
+    db.run("INSERT INTO playlist_names (id, name) VALUES (1, 'Playlist 1')");
+    db.run("INSERT INTO playlist_names (id, name) VALUES (2, 'Playlist 2')");
+    db.run("INSERT INTO playlist_names (id, name) VALUES (3, 'Playlist 3')");
+    db.run("INSERT INTO playlist_names (id, name) VALUES (4, 'Playlist 4')");
+  }
+});
+
 app.use(express.json());
 app.use(cors());
 
