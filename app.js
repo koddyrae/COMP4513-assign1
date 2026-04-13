@@ -24,8 +24,7 @@ db.run(`CREATE TABLE IF NOT EXISTS playlist_names (
     console.error("Error creating table:", err.message);
     return;
   }
-  // Table exists now, safe to delete and insert
-  db.run("DELETE FROM playlist_names");
+  // Table exists now, safe to insert
   db.get("SELECT COUNT(*) as count FROM playlist_names", [], (err, row) => {
     if (row && row.count === 0) {
       db.run("INSERT INTO playlist_names (id, name) VALUES (1, 'Playlist 1')");
