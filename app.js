@@ -21,7 +21,7 @@ db.run(`CREATE TABLE IF NOT EXISTS playlist_names (
   name TEXT NOT NULL
 )`);
 
-// pre-populate with existing playlists if table is empty
+db.run("DELETE FROM playlist_names");
 db.get("SELECT COUNT(*) as count FROM playlist_names", [], (err, row) => {
   if (row && row.count === 0) {
     db.run("INSERT INTO playlist_names (id, name) VALUES (1, 'Playlist 1')");
